@@ -12,7 +12,9 @@ function hashToken(token: string) {
 
 function signAccessToken(userId: string, username: string) {
   return jwt.sign({ sub: userId, username }, env.JWT_ACCESS_SECRET, {
-    expiresIn: env.ACCESS_TOKEN_TTL,
+    // ACCESS_TOKEN_TTL viene de env como string simple (ej. "15m"); jsonwebtoken
+    // lo acepta en runtime pero sus tipos exigen el tipo interno de la libreria "ms".
+    expiresIn: env.ACCESS_TOKEN_TTL as jwt.SignOptions["expiresIn"],
   });
 }
 

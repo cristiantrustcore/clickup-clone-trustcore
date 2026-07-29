@@ -2,7 +2,12 @@ node_modules/
 dist/
 .env
 *.log
+*.tsbuildinfo
 .DS_Store
+
+# artefactos generados por "tsc -b" al compilar vite.config.ts
+frontend/vite.config.js
+frontend/vite.config.d.ts
 
 # Prisma
 backend/src/prisma/migrations/**/migration.sql.bak
