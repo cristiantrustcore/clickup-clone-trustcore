@@ -1,6 +1,10 @@
-// Resuelto en runtime (no en build) para que la misma imagen sirva sin
-// importar desde qué máquina/IP de la red se levante el frontend.
-const API_BASE = `${window.location.protocol}//${window.location.hostname}:4000/api`;
+// Si VITE_API_BASE_URL se definio en el build (ej. "/api" cuando el backend
+// sirve el frontend desde el mismo origen, como en un despliegue en la nube),
+// se usa tal cual. Si no, se resuelve en runtime asumiendo el escenario de
+// red local (frontend y backend en el mismo host, puertos 3000/4000).
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ??
+  `${window.location.protocol}//${window.location.hostname}:4000/api`;
 
 let accessToken: string | null = null;
 
