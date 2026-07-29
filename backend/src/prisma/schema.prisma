@@ -7,6 +7,13 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
 model User {
   id           String   @id @default(cuid())
   username     String   @unique
@@ -16,6 +23,9 @@ model User {
   updatedAt    DateTime @updatedAt
 
   refreshTokens RefreshToken[]
+  ownedSpaces   Space[]        @relation("SpaceOwner")
+  ownedLists    List[]         @relation("ListOwner")
+  ownedTasks    Task[]         @relation("TaskOwner")
 }
 
 model RefreshToken {
@@ -28,4 +38,65 @@ model RefreshToken {
   createdAt DateTime  @default(now())
 
   @@index([userId])
+}
+
+model Space {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  color       String?
+  ownerId     String
+  owner       User     @relation("SpaceOwner", fields: [ownerId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  lists List[]
+}
+
+model List {
+  id        String   @id @default(cuid())
+  name      String
+  spaceId   String
+  space     Space    @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  ownerId   String
+  owner     User     @relation("ListOwner", fields: [ownerId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  statuses Status[]
+  tasks    Task[]
+
+  @@index([spaceId])
+}
+
+model Status {
+  id     String  @id @default(cuid())
+  name   String
+  color  String?
+  order  Int
+  listId String
+  list   List    @relation(fields: [listId], references: [id], onDelete: Cascade)
+  tasks  Task[]
+
+  @@unique([listId, name])
+  @@index([listId])
+}
+
+model Task {
+  id          String    @id @default(cuid())
+  title       String
+  description String?   @db.Text
+  priority    Priority  @default(MEDIUM)
+  dueDate     DateTime?
+  order       Int       @default(0)
+  listId      String
+  list        List      @relation(fields: [listId], references: [id], onDelete: Cascade)
+  statusId    String
+  status      Status    @relation(fields: [statusId], references: [id])
+  ownerId     String
+  owner       User      @relation("TaskOwner", fields: [ownerId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([listId, statusId])
 }
